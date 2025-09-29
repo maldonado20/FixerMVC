@@ -6,7 +6,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-// Lee FIXER_API_KEY de: local.properties → gradle.properties → ENV
+// Lee FIXER_API_KEY de: local.properties -> gradle.properties -> ENV
 val fixerApiKey: String = run {
     val p = Properties().apply {
         val f = rootProject.file("local.properties")
@@ -22,6 +22,9 @@ val fixerApiKey: String = run {
     }
 }
 
+// Diagnóstico inofensivo en build (no imprime la key)
+println("FIXER_API_KEY length at build time = ${fixerApiKey.length}")
+
 android {
     namespace = "sv.udb.fixer"
     compileSdk = 34
@@ -33,12 +36,11 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        // Exponer valores a BuildConfig
+        // Exponer a BuildConfig
         buildConfigField("String", "FIXER_API_KEY", "\"$fixerApiKey\"")
         // Plan FREE requiere HTTP:
         buildConfigField("String", "FIXER_BASE_URL", "\"http://data.fixer.io/api/\"")
-        buildConfigField("String", "FIXER_API_KEY", "\"bb7df65da7967fcfa00d8f84d2598348\"")
-
+        //buildConfigField("String", "FIXER_API_KEY", "\"bb7df65da7967fcfa00d8f84d2598348\"")
     }
 
     buildTypes {

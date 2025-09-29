@@ -10,18 +10,23 @@ import java.util.concurrent.TimeUnit
 object RetrofitFactory {
 
     fun fixerService(): FixerService {
-        val logging = HttpLoggingInterceptor().apply {
-            level = if (BuildConfig.LOG_HTTP) HttpLoggingInterceptor.Level.BODY
-            else HttpLoggingInterceptor.Level.NONE
-        }
-
+        // Interceptor que añade ?access_key=... a cada request
         val keyAppender = okhttp3.Interceptor { chain ->
             val original = chain.request()
             val newUrl = original.url.newBuilder()
                 .addQueryParameter("access_key", BuildConfig.FIXER_API_KEY)
                 .build()
             val newReq = original.newBuilder().url(newUrl).build()
+            if (BuildConfig.FIXER_API_KEY.isBlank()) {
+                android.util.Log.w("Fixer", "API KEY vacía. Revisa local.properties/gradle.properties/ENV.")
+            }
             chain.proceed(newReq)
+        }
+
+        // Logs HTTP BODY solo en debug
+        val logging = HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.LOG_HTTP) HttpLoggingInterceptor.Level.BODY
+            else HttpLoggingInterceptor.Level.NONE
         }
 
         val client = OkHttpClient.Builder()

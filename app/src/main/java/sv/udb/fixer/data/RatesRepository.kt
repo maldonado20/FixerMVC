@@ -22,7 +22,8 @@ class RatesRepository(private val api: FixerService) {
                 }
                 val body = resp.body()
                 if (body?.success == true && !body.rates.isNullOrEmpty()) {
-                    val list = body.rates!!.entries.map { Rate(it.key, it.value) }
+                    val list = body.rates!!.entries
+                        .map { Rate(it.key, it.value) }
                         .sortedBy { it.code }
                     onResult(Result.success(list))
                 } else {
@@ -30,6 +31,7 @@ class RatesRepository(private val api: FixerService) {
                     onResult(Result.failure(Exception(msg)))
                 }
             }
+
             override fun onFailure(call: Call<RatesResponse>, t: Throwable) {
                 onResult(Result.failure(t))
             }

@@ -8,14 +8,13 @@ import sv.udb.fixer.data.RatesRepository
 import sv.udb.fixer.data.RetrofitFactory
 import sv.udb.fixer.databinding.ActivityMainBinding
 import sv.udb.fixer.model.Rate
+import sv.udb.fixer.ui.RatesAdapter
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val adapter = sv.udb.fixer.ui.RatesAdapter()
-    private val repository by lazy {
-        RatesRepository(RetrofitFactory.fixerService())
-    }
+    private val adapter = RatesAdapter()
+    private val repository by lazy { RatesRepository(RetrofitFactory.fixerService()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,8 +23,6 @@ class MainActivity : AppCompatActivity() {
 
         setupRecycler()
         setupSwipeRefresh()
-
-        // Carga inicial
         loadRates()
     }
 
@@ -35,9 +32,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setupSwipeRefresh() {
-        binding.swipeRefresh.setOnRefreshListener {
-            loadRates()
-        }
+        binding.swipeRefresh.setOnRefreshListener { loadRates() }
     }
 
     private fun setStateLoading() {
