@@ -1,5 +1,4 @@
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-
+import java.util.Properties
 import org.gradle.api.JavaVersion
 
 plugins {
@@ -7,18 +6,15 @@ plugins {
     id("org.jetbrains.kotlin.android")
 }
 
-// Lee FIXER_API_KEY con prioridad:
-// 1) <raiz>/local.properties  2) gradle.properties  3) env var
+// Lee FIXER_API_KEY de: local.properties → gradle.properties → ENV
 val fixerApiKey: String = run {
-    val fromLocal = gradleLocalProperties(rootDir, providers)
-        .getProperty("FIXER_API_KEY")?.trim().orEmpty()
-
-    val fromGradleProp = providers.gradleProperty("FIXER_API_KEY")
-        .orNull?.trim().orEmpty()
-
-    val fromEnv = providers.environmentVariable("FIXER_API_KEY")
-        .orNull?.trim().orEmpty()
-
+    val p = Properties().apply {
+        val f = rootProject.file("local.properties")
+        if (f.exists()) f.inputStream().use { load(it) }
+    }
+    val fromLocal = p.getProperty("FIXER_API_KEY")?.trim().orEmpty()
+    val fromGradleProp = (project.findProperty("FIXER_API_KEY") as String?)?.trim().orEmpty()
+    val fromEnv = System.getenv("FIXER_API_KEY")?.trim().orEmpty()
     when {
         fromLocal.isNotBlank() -> fromLocal
         fromGradleProp.isNotBlank() -> fromGradleProp
@@ -37,8 +33,12 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "FIXER_BASE_URL", "\"http://data.fixer.io/api/\"")
+        // Exponer valores a BuildConfig
         buildConfigField("String", "FIXER_API_KEY", "\"$fixerApiKey\"")
+        // Plan FREE requiere HTTP:
+        buildConfigField("String", "FIXER_BASE_URL", "\"http://data.fixer.io/api/\"")
+        buildConfigField("String", "FIXER_API_KEY", "\"bb7df65da7967fcfa00d8f84d2598348\"")
+
     }
 
     buildTypes {

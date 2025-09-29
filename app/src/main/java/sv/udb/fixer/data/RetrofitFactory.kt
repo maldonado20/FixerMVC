@@ -10,13 +10,11 @@ import java.util.concurrent.TimeUnit
 object RetrofitFactory {
 
     fun fixerService(): FixerService {
-        // Logs BODY solo en Debug
         val logging = HttpLoggingInterceptor().apply {
             level = if (BuildConfig.LOG_HTTP) HttpLoggingInterceptor.Level.BODY
             else HttpLoggingInterceptor.Level.NONE
         }
 
-        // Interceptor que agrega ?access_key=... a cada request
         val keyAppender = okhttp3.Interceptor { chain ->
             val original = chain.request()
             val newUrl = original.url.newBuilder()
@@ -34,7 +32,7 @@ object RetrofitFactory {
             .build()
 
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.FIXER_BASE_URL) // <- ahora es http://...
+            .baseUrl(BuildConfig.FIXER_BASE_URL) // http://... (FREE)
             .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()

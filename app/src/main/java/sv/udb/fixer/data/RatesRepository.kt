@@ -1,29 +1,28 @@
 package sv.udb.fixer.data
 
-
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import sv.udb.fixer.model.Rate
+import sv.udb.fixer.model.RatesResponse
 
 class RatesRepository(private val api: FixerService) {
 
     fun fetchRates(
         symbols: List<String>? = null,
         base: String? = null,
-        onResult: (Result<List<sv.udb.fixer.model.Rate>>) -> Unit
+        onResult: (Result<List<Rate>>) -> Unit
     ) {
         val symbolsJoined = symbols?.joinToString(",")
-        api.getLatest(symbolsJoined, base).enqueue(object : retrofit2.Callback<sv.udb.fixer.model.RatesResponse> {
-            override fun onResponse(
-                call: retrofit2.Call<sv.udb.fixer.model.RatesResponse>,
-                response: retrofit2.Response<sv.udb.fixer.model.RatesResponse>
-            ) {
-                if (!response.isSuccessful) {
-                    onResult(Result.failure(Exception("HTTP ${response.code()}")))
+        api.getLatest(symbolsJoined, base).enqueue(object : Callback<RatesResponse> {
+            override fun onResponse(call: Call<RatesResponse>, resp: Response<RatesResponse>) {
+                if (!resp.isSuccessful) {
+                    onResult(Result.failure(Exception("HTTP ${resp.code()}")))
                     return
                 }
-                val body = response.body()
+                val body = resp.body()
                 if (body?.success == true && !body.rates.isNullOrEmpty()) {
-                    val list = body.rates!!.entries
-                        .map { sv.udb.fixer.model.Rate(it.key, it.value) }
+                    val list = body.rates!!.entries.map { Rate(it.key, it.value) }
                         .sortedBy { it.code }
                     onResult(Result.success(list))
                 } else {
@@ -31,14 +30,9 @@ class RatesRepository(private val api: FixerService) {
                     onResult(Result.failure(Exception(msg)))
                 }
             }
-
-            override fun onFailure(
-                call: retrofit2.Call<sv.udb.fixer.model.RatesResponse>,
-                t: Throwable
-            ) {
+            override fun onFailure(call: Call<RatesResponse>, t: Throwable) {
                 onResult(Result.failure(t))
             }
         })
     }
 }
-

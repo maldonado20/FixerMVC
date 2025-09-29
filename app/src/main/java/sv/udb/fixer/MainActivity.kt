@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun loadRates() {
         setStateLoading()
-        val symbols = listOf("USD","EUR","GBP","JPY","CAD","MXN")
+        val symbols = listOf("USD", "EUR", "GBP", "JPY", "CAD", "MXN")
         repository.fetchRates(symbols = symbols, base = null) { result ->
             runOnUiThread {
                 binding.swipeRefresh.isRefreshing = false

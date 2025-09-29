@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <!-- Permitir tráfico HTTP (cleartext) SOLO a data.fixer.io -->
+    <!-- Permite HTTP SOLO a data.fixer.io -->
     <domain-config cleartextTrafficPermitted="true">
         <domain includeSubdomains="false">data.fixer.io</domain>
     </domain-config>
