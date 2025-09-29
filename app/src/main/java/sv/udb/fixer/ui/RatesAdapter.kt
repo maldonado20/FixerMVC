@@ -3,8 +3,11 @@ package sv.udb.fixer.ui
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import sv.udb.fixer.R
 import sv.udb.fixer.databinding.ItemRateBinding
 import sv.udb.fixer.model.Rate
+import sv.udb.fixer.util.Flags
 
 class RatesAdapter(
     private val items: MutableList<Rate> = mutableListOf()
@@ -22,13 +25,17 @@ class RatesAdapter(
         val item = items[position]
         holder.binding.tvCode.text = item.code
         holder.binding.tvValue.text = item.value.toString()
+
+        val url = Flags.urlFor(item.code)
+        if (url != null)
+            Glide.with(holder.itemView).load(url).placeholder(R.drawable.ic_money).into(holder.binding.imgFlag)
+        else
+            holder.binding.imgFlag.setImageResource(R.drawable.ic_money)
     }
 
     override fun getItemCount() = items.size
 
     fun submit(list: List<Rate>) {
-        items.clear()
-        items.addAll(list)
-        notifyDataSetChanged()
+        items.clear(); items.addAll(list); notifyDataSetChanged()
     }
 }

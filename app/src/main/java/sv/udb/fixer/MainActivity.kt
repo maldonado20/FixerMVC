@@ -1,69 +1,39 @@
 package sv.udb.fixer
 
 import android.os.Bundle
-import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.recyclerview.widget.LinearLayoutManager
-import sv.udb.fixer.data.RatesRepository
-import sv.udb.fixer.data.RetrofitFactory
+import androidx.fragment.app.Fragment
 import sv.udb.fixer.databinding.ActivityMainBinding
-import sv.udb.fixer.model.Rate
-import sv.udb.fixer.ui.RatesAdapter
+import sv.udb.fixer.ui.ConvertFragment
+import sv.udb.fixer.ui.RatesFragment
+import sv.udb.fixer.ui.SymbolsFragment
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val adapter = RatesAdapter()
-    private val repository by lazy { RatesRepository(RetrofitFactory.fixerService()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        setupRecycler()
-        setupSwipeRefresh()
-        loadRates()
-    }
+        // Pantalla por defecto
+        replace(RatesFragment())
 
-    private fun setupRecycler() {
-        binding.rvRates.layoutManager = LinearLayoutManager(this)
-        binding.rvRates.adapter = adapter
-    }
-
-    private fun setupSwipeRefresh() {
-        binding.swipeRefresh.setOnRefreshListener { loadRates() }
-    }
-
-    private fun setStateLoading() {
-        binding.progress.visibility = View.VISIBLE
-        binding.rvRates.visibility = View.GONE
-        binding.tvError.visibility = View.GONE
-    }
-
-    private fun setStateError(msg: String) {
-        binding.progress.visibility = View.GONE
-        binding.rvRates.visibility = View.GONE
-        binding.tvError.visibility = View.VISIBLE
-        binding.tvError.text = msg
-    }
-
-    private fun setStateData(list: List<Rate>) {
-        binding.progress.visibility = View.GONE
-        binding.tvError.visibility = View.GONE
-        binding.rvRates.visibility = View.VISIBLE
-        adapter.submit(list)
-    }
-
-    private fun loadRates() {
-        setStateLoading()
-        val symbols = listOf("USD", "EUR", "GBP", "JPY", "CAD", "MXN")
-        repository.fetchRates(symbols = symbols, base = null) { result ->
-            runOnUiThread {
-                binding.swipeRefresh.isRefreshing = false
-                result.onSuccess { setStateData(it) }
-                    .onFailure { setStateError(it.message ?: "Error desconocido") }
+        binding.bottomNav.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.nav_rates -> replace(RatesFragment())
+                R.id.nav_symbols -> replace(SymbolsFragment())
+                R.id.nav_convert -> replace(ConvertFragment())
+                // R.id.nav_fluct -> replace(FluctuationsFragment())
             }
+            true
         }
+    }
+
+    private fun replace(f: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, f)
+            .commit()
     }
 }

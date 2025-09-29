@@ -88,4 +88,7 @@ dependencies {
     // OkHttp
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    //Imagenes de banderas
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 }
